@@ -20,10 +20,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Maven
+      - name: Install specific Maven version
         run: |
-          sudo apt-get update
-          sudo apt-get install -y maven
+          MAVEN_VERSION=3.9.2
+          wget https://downloads.apache.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz
+          tar xzvf apache-maven-$MAVEN_VERSION-bin.tar.gz
+          sudo mv apache-maven-$MAVEN_VERSION /opt/
+          sudo ln -s /opt/apache-maven-$MAVEN_VERSION/bin/mvn /usr/bin/mvn
           mvn -version
 
       - name: Build with Maven
