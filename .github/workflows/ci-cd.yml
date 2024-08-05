@@ -48,3 +48,20 @@ jobs:
           git add pom.xml
           git commit -m "Increment version to ${{ env.new_version }}"
           git push
+
+      - name: Upload JAR to GitHub Packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-app-${{ env.new_version }}
+          path: target/*.jar
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t your-dockerhub-username/simple-java-maven-app:${{ env.new_version }} .
+          docker push your-dockerhub-username/simple-java-maven-app:${{ env.new_version }}
