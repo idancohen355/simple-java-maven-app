@@ -20,6 +20,12 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
+      - name: Install Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y maven=3.9.2-1~ubuntu20.04.1
+          mvn -version
+
       - name: Build with Maven
         run: mvn clean install
 
