@@ -35,7 +35,7 @@ jobs:
         id: version
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print}')
+          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print "-dev"}')
           mvn versions:set -DnewVersion=$new_version
           mvn versions:commit
           echo "New version: $new_version"
@@ -63,5 +63,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t idancohen355/simple-java-maven-app:latest-dev .
-          docker push idancohen355/simple-java-maven-app:latest-dev
+          docker build -t your-dockerhub-username/simple-java-maven-app:${{ env.new_version }}-dev .
+          docker push your-dockerhub-username/simple-java-maven-app:${{ env.new_version }}-dev
