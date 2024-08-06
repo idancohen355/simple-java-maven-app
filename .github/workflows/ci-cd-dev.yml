@@ -35,10 +35,11 @@ jobs:
         id: version
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Current version: $version"
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print "-dev"}')
+          echo "New version: $new_version"
           mvn versions:set -DnewVersion=$new_version
           mvn versions:commit
-          echo "New version: $new_version"
           echo "new_version=$new_version" >> $GITHUB_ENV
 
       - name: Verify version update
