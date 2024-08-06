@@ -43,10 +43,8 @@ jobs:
           echo "New version: $new_version"
           mvn versions:set -DnewVersion=$new_version
           mvn versions:commit
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
           echo "new_version=$new_version" >> $GITHUB_ENV
-
-      - name: Output updated version
-        run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout
 
       - name: Verify version update
         run: cat pom.xml
