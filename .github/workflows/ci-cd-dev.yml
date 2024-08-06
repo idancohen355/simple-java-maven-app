@@ -41,11 +41,15 @@ jobs:
           echo "New version: $new_version"
           echo "new_version=$new_version" >> $GITHUB_ENV
 
+      - name: Verify version update
+        run: cat pom.xml
+
       - name: Commit new version
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add pom.xml
+          git status
           git commit -m "Increment version to ${{ env.new_version }}"
           git push
 
@@ -63,5 +67,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t idancohen355/simple-java-maven-app:${{ env.new_version }}-dev .
-          docker push idancohen355/simple-java-maven-app:${{ env.new_version }}-dev
+          docker build -t idancohen355/simple-java-maven-app:latest-dev .
+          docker push idancohen355/simple-java-maven-app:latest-dev
