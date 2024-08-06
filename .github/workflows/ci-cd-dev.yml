@@ -39,7 +39,7 @@ jobs:
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Current version: $version"
-          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print "-dev"}')
+          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print $0 "-dev"}')
           echo "New version: $new_version"
           mvn versions:set -DnewVersion=$new_version
           mvn versions:commit
