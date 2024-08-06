@@ -63,5 +63,5 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t your-dockerhub-username/simple-java-maven-app:${{ env.new_version }}-dev .
-          docker push your-dockerhub-username/simple-java-maven-app:${{ env.new_version }}-dev
+          docker build -t idancohen355/simple-java-maven-app:${{ env.new_version }}-dev .
+          docker push idancohen355/simple-java-maven-app:${{ env.new_version }}-dev
