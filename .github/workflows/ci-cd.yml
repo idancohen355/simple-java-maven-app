@@ -38,6 +38,7 @@ jobs:
           args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64  # Manually set JAVA_HOME for Snyk step
 
       - name: Increment version
         id: version
