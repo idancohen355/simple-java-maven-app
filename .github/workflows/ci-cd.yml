@@ -29,7 +29,12 @@ jobs:
           echo "PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
           echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
+      - name: Export JAVA_HOME
+        run: echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+
       - name: Build with Maven
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         run: mvn clean install
 
       - name: Dependency Scanning with Snyk
