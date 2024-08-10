@@ -32,16 +32,22 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      - name: Install Hadolint
+        run: |
+          wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.9.3/hadolint-Linux-x86_64
+          chmod +x /bin/hadolint
+
+      - name: Lint Dockerfile with Hadolint
+        run: |
+          hadolint Dockerfile
+
       - name: Install Snyk and Authenticate
         run: |
           npm install -g snyk
           snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Scan Dockerfile with Snyk
-        run: |
-          snyk container test --file=Dockerfile --severity-threshold=high --exclude-base-image-vulns
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk Maven Plugin
+        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
       - name: Increment version
         id: version
