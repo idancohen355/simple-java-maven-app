@@ -19,6 +19,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: maven
 
       - name: Install Maven 3.9.2
         run: |
@@ -27,14 +28,8 @@ jobs:
           sudo mv apache-maven-3.9.2 /usr/local/apache-maven
           echo "MAVEN_HOME=/usr/local/apache-maven" >> $GITHUB_ENV
           echo "PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
-          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
-
-      - name: Export JAVA_HOME
-        run: echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
       - name: Build with Maven
-        env:
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         run: mvn clean install
 
       - name: Dependency Scanning with Snyk
@@ -43,7 +38,6 @@ jobs:
           args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Increment version
         id: version
