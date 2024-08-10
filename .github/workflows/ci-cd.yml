@@ -27,6 +27,7 @@ jobs:
           sudo mv apache-maven-3.9.2 /usr/local/apache-maven
           echo "MAVEN_HOME=/usr/local/apache-maven" >> $GITHUB_ENV
           echo "PATH=/usr/local/apache-maven/bin:$PATH" >> $GITHUB_ENV
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
       - name: Build with Maven
         run: mvn clean install
@@ -37,6 +38,7 @@ jobs:
           args: --severity-threshold=high
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Increment version
         id: version
