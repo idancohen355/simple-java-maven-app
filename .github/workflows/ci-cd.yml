@@ -40,6 +40,12 @@ jobs:
       - name: Run Snyk Maven Plugin
         run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
+      - name: Scan Dockerfile with Snyk
+        run: |
+          snyk container test --file=Dockerfile --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Increment version
         id: version
         run: |
@@ -86,4 +92,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key $EC2_USER@$EC2_HOST << EOF
             docker pull idancohen355/simple-java-maven-app:${{ env.new_version }}
             docker run -d --name simple-java-maven-app idancohen355/simple-java-maven-app:${{ env.new_version }}
-       
+          EOF
