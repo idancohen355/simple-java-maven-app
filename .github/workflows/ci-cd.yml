@@ -32,6 +32,11 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      - name: Install Snyk and Authenticate
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+
       - name: Run Snyk Maven Plugin
         run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
@@ -81,4 +86,4 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key $EC2_USER@$EC2_HOST << EOF
             docker pull idancohen355/simple-java-maven-app:${{ env.new_version }}
             docker run -d --name simple-java-maven-app idancohen355/simple-java-maven-app:${{ env.new_version }}
-          EOF
+       
