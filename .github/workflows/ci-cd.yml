@@ -32,8 +32,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Install Snyk Maven Plugin
-        run: mvn io.snyk:snyk-maven-plugin:scan -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk Maven Plugin
+        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
       - name: Increment version
         id: version
