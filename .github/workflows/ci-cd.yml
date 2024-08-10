@@ -35,9 +35,12 @@ jobs:
       - name: Install Snyk
         run: npm install -g snyk
 
-      - name: Dependency Scanning with Snyk
+      - name: Verify JAVA_HOME and Run Maven Dependency Tree
         run: |
+          echo "JAVA_HOME is set to: $JAVA_HOME"
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          echo "After setting, JAVA_HOME is: $JAVA_HOME"
+          mvn dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml"
           snyk test --severity-threshold=high --file=pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
