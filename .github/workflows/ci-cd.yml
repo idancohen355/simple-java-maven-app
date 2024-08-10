@@ -32,20 +32,8 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Install Snyk
-        run: npm install -g snyk
-
-      - name: Verify JAVA_HOME, Update PATH, and Run Maven Dependency Tree
-        run: |
-          echo "JAVA_HOME is set to: $JAVA_HOME"
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
-          echo "After setting, JAVA_HOME is: $JAVA_HOME"
-          echo "PATH is: $PATH"
-          mvn dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml"
-          snyk test --severity-threshold=high --file=pom.xml
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Install Snyk Maven Plugin
+        run: mvn io.snyk:snyk-maven-plugin:scan -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
       - name: Increment version
         id: version
