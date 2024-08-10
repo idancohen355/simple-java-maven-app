@@ -36,10 +36,11 @@ jobs:
         run: npm install -g snyk
 
       - name: Dependency Scanning with Snyk
-        run: snyk test --severity-threshold=high --file=pom.xml
+        run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          snyk test --severity-threshold=high --file=pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Increment version
         id: version
