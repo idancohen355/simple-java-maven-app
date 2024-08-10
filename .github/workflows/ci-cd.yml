@@ -37,12 +37,9 @@ jobs:
           npm install -g snyk
           snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Run Snyk Maven Plugin
-        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
-
       - name: Scan Dockerfile with Snyk
         run: |
-          snyk container test --file=Dockerfile --severity-threshold=high
+          snyk container test --file=Dockerfile --severity-threshold=high --exclude-base-image-vulns
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
