@@ -111,6 +111,11 @@ jobs:
         run: |
           docker run --rm idancohen355/simple-java-maven-app:${{ env.new_version }} > output.txt
 
+      - name: Display output
+        run: |
+          echo "Container Output:"
+          cat output.txt
+
       - name: Verify output
         run: |
           if grep -q "Hello, World!" output.txt; then
