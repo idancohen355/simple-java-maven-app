@@ -6,22 +6,16 @@ on:
       - master
   workflow_dispatch:
 
-permissions:
-  security-events: write
-  packages: read
-  actions: read
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v2
         with:
           languages: 'java'
 
@@ -44,9 +38,15 @@ jobs:
         run: mvn clean install
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:java"
+          output: ./codeql-results/results.sarif
+
+      - name: Upload CodeQL results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ./codeql-results/results.sarif
+          category: java-${{ github.run_id }}
 
       - name: Install Hadolint
         run: |
