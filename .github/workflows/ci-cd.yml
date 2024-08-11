@@ -118,6 +118,7 @@ jobs:
       - name: Verify Docker image signature
         env:
           COSIGN_PUB: ${{ secrets.COSIGN_PUB }}
+          COSIGN_TUF_ROOT: ""
         run: |
           echo "${{ secrets.COSIGN_PUB }}" > /tmp/cosign.pub
           docker_image_digest=$(cosign triangulate idancohen355/simple-java-maven-app:${{ env.new_version }})
