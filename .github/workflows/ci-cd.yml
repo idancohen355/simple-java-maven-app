@@ -110,10 +110,10 @@ jobs:
       - name: Sign Docker image
         env:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PASSWORD_ENV: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           echo "${{ secrets.COSIGN_KEY }}" > /tmp/cosign.key
-          cosign sign --key /tmp/cosign.key --pass $COSIGN_PASSWORD idancohen355/simple-java-maven-app:${{ env.new_version }}
+          COSIGN_PASSWORD=$COSIGN_PASSWORD_ENV cosign sign --key /tmp/cosign.key idancohen355/simple-java-maven-app:${{ env.new_version }}
 
       - name: Deploy to EC2
         env:
