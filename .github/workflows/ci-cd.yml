@@ -107,6 +107,22 @@ jobs:
           docker build -t idancohen355/simple-java-maven-app:${{ env.new_version }} .
           docker push idancohen355/simple-java-maven-app:${{ env.new_version }}
 
+      - name: Run Docker container for testing
+        run: |
+          docker run --rm idancohen355/simple-java-maven-app:${{ env.new_version }} > output.txt
+
+      - name: Verify output
+        run: |
+          if grep -q "Hello, World!" output.txt; then
+            echo "Output is correct"
+          else
+            echo "Output is incorrect" >&2
+            exit 1
+          fi
+
+      - name: Scan Docker image with Snyk
+        run: snyk container test idancohen355/simple-java-maven-app:${{ env.new_version }} --file=Dockerfile
+
       - name: Sign Docker image
         env:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
