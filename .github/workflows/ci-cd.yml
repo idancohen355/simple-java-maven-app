@@ -113,7 +113,7 @@ jobs:
 
       - name: Verify output
         run: |
-          if grep -q "Hello, World!" output.txt; then
+          if grep -q "Hello World!" output.txt; then
             echo "Output is correct"
           else
             echo "Output is incorrect" >&2
