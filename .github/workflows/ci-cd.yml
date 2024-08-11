@@ -7,9 +7,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  codeql:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+          source-root: src/main/java
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  build:
+    runs-on: ubuntu-latest
+    needs: codeql
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -97,21 +114,3 @@ jobs:
             docker pull idancohen355/simple-java-maven-app:${{ env.new_version }}
             docker run -d --name simple-java-maven-app idancohen355/simple-java-maven-app:${{ env.new_version }}
           EOF
-
-  codeql:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: java
-          source-root: src/main/java  # Corrected to match your file structure
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
