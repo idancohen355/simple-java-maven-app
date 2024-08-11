@@ -96,10 +96,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Install Cosign
+        run: |
+          wget https://github.com/sigstore/cosign/releases/download/v2.0.0/cosign-linux-amd64
+          chmod +x cosign-linux-amd64
+          sudo mv cosign-linux-amd64 /usr/local/bin/cosign
+
       - name: Build and push Docker image
         run: |
           docker build -t idancohen355/simple-java-maven-app:${{ env.new_version }} .
           docker push idancohen355/simple-java-maven-app:${{ env.new_version }}
+
+      - name: Sign Docker image
+        env:
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: |
+          cosign sign --key $COSIGN_KEY idancohen355/simple-java-maven-app:${{ env.new_version }}
 
       - name: Deploy to EC2
         env:
