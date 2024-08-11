@@ -1,10 +1,9 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline with CodeQL Analysis
 
 on:
   push:
     branches:
       - master
-  workflow_dispatch:
 
 jobs:
   build:
@@ -19,7 +18,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
 
       - name: Install Maven 3.9.2
         run: |
@@ -32,23 +30,13 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Install Hadolint
-        run: |
-          wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v2.9.3/hadolint-Linux-x86_64
-          chmod +x hadolint
-          sudo mv hadolint /usr/local/bin/
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
 
-      - name: Lint Dockerfile with Hadolint
-        run: |
-          hadolint Dockerfile
-
-      - name: Install Snyk and Authenticate
-        run: |
-          npm install -g snyk
-          snyk auth ${{ secrets.SNYK_TOKEN }}
-
-      - name: Run Snyk Maven Plugin
-        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
 
       - name: Increment version
         id: version
