@@ -112,7 +112,8 @@ jobs:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --key $COSIGN_KEY idancohen355/simple-java-maven-app:${{ env.new_version }}
+          echo "${{ secrets.COSIGN_KEY }}" > /tmp/cosign.key
+          cosign sign --key /tmp/cosign.key --pass $COSIGN_PASSWORD idancohen355/simple-java-maven-app:${{ env.new_version }}
 
       - name: Deploy to EC2
         env:
