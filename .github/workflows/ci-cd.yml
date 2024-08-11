@@ -1,9 +1,10 @@
-name: CI/CD Pipeline with CodeQL Analysis
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,6 +19,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: maven
 
       - name: Install Maven 3.9.2
         run: |
@@ -30,14 +32,23 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: java
-          source-root: /home/runner/work/simple-java-maven-app/simple-java-maven-app/src/main/java  # Adjust this path if necessary
+      - name: Install Hadolint
+        run: |
+          wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v2.9.3/hadolint-Linux-x86_64
+          chmod +x hadolint
+          sudo mv hadolint /usr/local/bin/
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+      - name: Lint Dockerfile with Hadolint
+        run: |
+          hadolint Dockerfile
+
+      - name: Install Snyk and Authenticate
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk Maven Plugin
+        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
 
       - name: Increment version
         id: version
@@ -86,3 +97,21 @@ jobs:
             docker pull idancohen355/simple-java-maven-app:${{ env.new_version }}
             docker run -d --name simple-java-maven-app idancohen355/simple-java-maven-app:${{ env.new_version }}
           EOF
+
+  codeql:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+          source-root: src/main/java  # Corrected to match your file structure
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
