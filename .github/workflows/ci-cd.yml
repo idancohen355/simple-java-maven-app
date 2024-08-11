@@ -34,6 +34,7 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: java
+          source-root: /home/runner/work/simple-java-maven-app/simple-java-maven-app/src/main/java  # Adjust this path if necessary
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
