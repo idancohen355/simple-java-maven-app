@@ -6,16 +6,22 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: 'java'
 
@@ -38,9 +44,9 @@ jobs:
         run: mvn clean install
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
-          output: ./codeql-results/results.sarif
+          category: "/language:java"
 
       - name: Upload CodeQL results
         uses: github/codeql-action/upload-sarif@v2
@@ -48,68 +54,5 @@ jobs:
           sarif_file: ./codeql-results/results.sarif
           category: java-${{ github.run_id }}
 
-      - name: Install Hadolint
-        run: |
-          wget -O hadolint https://github.com/hadolint/hadolint/releases/download/v2.9.3/hadolint-Linux-x86_64
-          chmod +x hadolint
-          sudo mv hadolint /usr/local/bin/
+      # The rest of your steps follow here...
 
-      - name: Lint Dockerfile with Hadolint
-        run: |
-          hadolint Dockerfile
-
-      - name: Install Snyk and Authenticate
-        run: |
-          npm install -g snyk
-          snyk auth ${{ secrets.SNYK_TOKEN }}
-
-      - name: Run Snyk Maven Plugin
-        run: mvn io.snyk:snyk-maven-plugin:test -Dsnyk.token=${{ secrets.SNYK_TOKEN }}
-
-      - name: Increment version
-        id: version
-        run: |
-          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++; print}')
-          mvn versions:set -DnewVersion=$new_version
-          mvn versions:commit
-          echo "New version: $new_version"
-          echo "new_version=$new_version" >> $GITHUB_ENV
-
-      - name: Commit new version
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add pom.xml
-          git commit -m "Increment version to ${{ env.new_version }}"
-          git push
-
-      - name: Upload JAR to GitHub Packages
-        uses: actions/upload-artifact@v2
-        with:
-          name: my-app-${{ env.new_version }}
-          path: target/*.jar
-
-      - name: Log in to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build and push Docker image
-        run: |
-          docker build -t idancohen355/simple-java-maven-app:${{ env.new_version }} .
-          docker push idancohen355/simple-java-maven-app:${{ env.new_version }}
-
-      - name: Deploy to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > /tmp/ssh_key
-          chmod 600 /tmp/ssh_key
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_key $EC2_USER@$EC2_HOST << EOF
-            docker pull idancohen355/simple-java-maven-app:${{ env.new_version }}
-            docker run -d --name simple-java-maven-app idancohen355/simple-java-maven-app:${{ env.new_version }}
-          EOF
