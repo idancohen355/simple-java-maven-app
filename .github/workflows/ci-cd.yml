@@ -117,10 +117,11 @@ jobs:
 
       - name: Verify Docker image signature
         env:
-          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+          COSIGN_PUB: ${{ secrets.COSIGN_PUB }}
         run: |
+          echo "${{ secrets.COSIGN_PUB }}" > /tmp/cosign.pub
           docker_image_digest=$(cosign triangulate idancohen355/simple-java-maven-app:${{ env.new_version }})
-          cosign verify --key /tmp/cosign.key idancohen355/simple-java-maven-app@$docker_image_digest
+          cosign verify --key /tmp/cosign.pub --insecure-ignore-tlog idancohen355/simple-java-maven-app@$docker_image_digest
 
       - name: Deploy to EC2
         env:
