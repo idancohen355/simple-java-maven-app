@@ -115,6 +115,13 @@ jobs:
           echo "${{ secrets.COSIGN_KEY }}" > /tmp/cosign.key
           COSIGN_PASSWORD=$COSIGN_PASSWORD_ENV cosign sign --key /tmp/cosign.key --yes idancohen355/simple-java-maven-app:${{ env.new_version }}
 
+      - name: Verify Docker image signature
+        env:
+          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
+        run: |
+          docker_image_digest=$(cosign triangulate idancohen355/simple-java-maven-app:${{ env.new_version }})
+          cosign verify --key /tmp/cosign.key idancohen355/simple-java-maven-app@$docker_image_digest
+
       - name: Deploy to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
